@@ -53,50 +53,48 @@ app.post("/", (req,res) => {
 
 // POST: /pembayaran/save --> end point untuk insert data pembayaran
 app.post("/save", (req,res) => {
-    let nisn  = req.body.nisn
-    let bulan_bayar = req.body.bulan_bayar
-    let tahun_bayar = req.body.tahun_bayar
+    let data1 = [req.body.nisn, req.body.bulan_bayar, req.body.tahun_bayar]
     let message = ""
 
-    let sql = "select * from pembayaran where nisn = '%"+nisn+"%' and bulan_bayar = '%"+bulan_bayar+"%' and tahun_bayar = '%"+tahun_bayar+"%'"
-    db.query(sql,(err,result) => {
+    let sql1 = "select * from pembayaran where nisn = ? and bulan_bayar = ? and tahun_bayar = ?"
+    db.query(sql1, data1,(err,result) => {
         if(err) {
             message = err.message
         }
-        else {
-            message = result
+        else if(result.length > 0) {
+            let response = {
+                message : "Sudah Bayar"
+                }
+            res.setHeader("Content-Type","application/json")
+            res.send(JSON.stringify(response))
         }
-        // else if(result.length > 0) {
-        //     message = "Sudah Bayar"
-        // }
-        // else{
-        //     message = "belum bayar"
-        //     let data = {
-        //         id_pembayaran: req.body.id_pembayaran,
-        //         id_petugas: req.body.id_petugas,
-        //         nisn: req.body.nisn,
-        //         tgl_bayar: moment().format('YYYY-MM-DD HH:mm:ss'),
-        //         bulan_bayar: req.body.bulan_bayar,
-        //         tahun_bayar: req.body.tahun_bayar,
-        //         id_spp: req.body.id_spp,
-        //         jumlah_bayar: req.body.jumlah_bayar,
-        //         status: req.body.status
-        //     }
-
-        //     let sql = "insert into pembayaran set ?"
-        //     db.query(sql, data, (err,result) => {
-        //         if (err) {
-        //             message = err.message
-        //         } else {
-        //             message = result.affectedRows + " row inserted"
-        //         }
-        //     })
-        // }
-        let response = {
-            message : message
+        else{
+            let data2 = {
+                id_pembayaran: req.body.id_pembayaran,
+                id_petugas: req.body.id_petugas,
+                nisn: req.body.nisn,
+                tgl_bayar: moment().format('YYYY-MM-DD HH:mm:ss'),
+                bulan_bayar: req.body.bulan_bayar,
+                tahun_bayar: req.body.tahun_bayar,
+                id_spp: req.body.id_spp,
+                jumlah_bayar: req.body.jumlah_bayar,
+                status: req.body.status
             }
-        res.setHeader("Content-Type","application/json")
-        res.send(JSON.stringify(response))
+
+            let sql2 = "insert into pembayaran set ?"
+            db.query(sql2, data2, (err,result) => {
+                if (err) {
+                    message = err.message
+                } else {
+                    message = result.affectedRows + " row inserted"
+                }
+                let response = {
+                    message : message
+                    }
+                res.setHeader("Content-Type","application/json")
+                res.send(JSON.stringify(response))
+            })
+        }
     })
 })
 
